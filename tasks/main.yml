@@ -42,6 +42,7 @@
     - jenkins_restore
   docker_container:
     name: jenkins
+    image: forgottenbeast/jenkins:latest
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
@@ -66,6 +67,7 @@
     - jenkins_restore
   docker_container:
     name: jenkins
+    image: forgottenbeast/jenkins:latest
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
