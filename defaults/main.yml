@@ -1,5 +1,6 @@
 JENKINS_VOLUME: jenkins
 JENKINS_BACKUP_FILE: jenkins.tar.bz2
+jenkins_letsencrypt_domain_name: jenkins.mysite.xyz
 jenkins_domain_name: "jenkins.mysite.xyz,jenkins.aizeroarearazzr.onion"
 jenkins_letsencrypt_mail: whatever@thing.fthagn
 jenkins_letsencrypt_testmode: "true"

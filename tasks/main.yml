@@ -1,4 +1,5 @@
 - name: "Create proxy_net if it does not exist"
+  become: True
   docker_network:
     name: proxy_net
 
@@ -41,7 +42,7 @@
      VIRTUAL_PROTO: http
      VIRTUAL_PORT: 8080
 {% if SSL == True %}
-     LETSENCRYPT_HOST: {{ jenkins_domain_name }}
+     LETSENCRYPT_HOST: {{ jenkins_letsencrypt_domain_name }}
      LETSENCRYPT_EMAIL: {{ jenkins_letsencrypt_mail }}
      LETSENCRYPT_TEST: "{{ jenkins_letsencrypt_testmode }}"
 {% endif %}
