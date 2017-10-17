@@ -1,5 +1,8 @@
 - name: "Create proxy_net if it does not exist"
   become: True
+  tags:
+    - jenkins_deploy
+    - jenkins_setup
   docker_network:
     name: proxy_net
 
@@ -30,7 +33,9 @@
   command: iptables -t nat -A POSTROUTING -s 173.16.0.0/12 ! -d 172.16.0.0/12 -j MASQUERADE
 
 - name: "get docker path"
-  tags: dockerpath
+  tags:
+    - jenkins_deploy
+    - jenkins_restore
   command: which docker
   register: docker_path
 
@@ -53,7 +58,7 @@
      LETSENCRYPT_TEST: "{{ jenkins_letsencrypt_testmode }}"
 
     networks:
-      - proxy_net
+      - name: proxy_net
     volumes:
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
       - /var/run/docker.sock:/var/run/docker.sock
@@ -74,9 +79,20 @@
      VIRTUAL_PROTO: http
      VIRTUAL_PORT: 8080
     networks:
-      - proxy_net
+      - name: proxy_net
     volumes:
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
       - /var/run/docker.sock:/var/run/docker.sock
       - "{{docker_path.stdout}}:{{docker_path.stdout}}"
 
+- name: "Reading initial password"
+  tags:
+    - jenkins_deploy
+  command: docker exec jenkins bash -c "cat ~/secrets/initialAdminPassword"
+  register: admin_pass
+
+- name: "Here is the initial admin password:"
+  debug:
+    msg: "{{ admin_pass.stdout }}"
+  tags:
+    - jenkins_deploy
