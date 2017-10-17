@@ -1,0 +1,29 @@
+- name: "Copy data from backup folder to remote host"
+  tags:
+    - jenkins_restore
+    - jenkins_db_restore
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/{{ item }}
+  with_items:
+    - "{{ JENKINS_BACKUP_FILE }}"
+
+- name: "restore data from backup to jenkins"
+  tags: jenkins_restore
+  shell: |
+    docker run --rm -i -v {{ JENKINS_VOLUME }}:/jenkins -v /tmp:/backup:ro \
+        {{ alpine_image }} \
+        sh -c "\
+        apk update;\
+        apk add -y tar;\
+        rm -rf /jenkins/* ;\
+        tar -C /jenkins/ -xjf /backup/{{ JENKINS_BACKUP_FILE }};"
+
+- name: "Remove backup data"
+  tags:
+    - jenkins_restore
+  file:
+    name: /tmp/{{ item }}
+    state: absent
+  with_items:
+    - "{{ JENKINS_BACKUP_FILE }}"

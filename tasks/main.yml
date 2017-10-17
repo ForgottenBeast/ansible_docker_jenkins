@@ -1,0 +1,43 @@
+- name: "Create proxy_net if it does not exist"
+  docker_network:
+    name: proxy_net
+
+- include: create_volumes.yml
+  become: True
+  tags:
+    - jenkins_volumes_setup
+    - jenkins_setup
+
+- include: setup.yml
+  become: True
+  tags: jenkins_setup
+
+- include: backup.yml
+  become: True
+  tags: jenkins_all_backup
+
+
+- include: restore.yml
+  become: True
+  tags: jenkins_all_restore
+
+- name: "Allow docker containers to communicate with the outside"
+  become: True
+  tags:
+   - jenkins_deploy
+   - jenkins_restore
+  command: iptables -t nat -A POSTROUTING -s 172.16.0.0/12 ! -d 172.16.0.0/12 -j MASQUERADE
+
+- name: "Start jenkins container"
+  become: True
+  tags:
+    - jenkins_deploy
+    - jenkins_restore
+  docker_container:
+    name: jenkins
+    state: started
+    networks:
+      - proxy_net
+    volumes:
+      - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
+

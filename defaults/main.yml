@@ -1,0 +1,2 @@
+JENKINS_VOLUME: jenkins
+JENKINS_BACKUP_FILE: jenkins.tar.bz2
