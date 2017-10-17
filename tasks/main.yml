@@ -27,9 +27,15 @@
   tags:
    - jenkins_deploy
    - jenkins_restore
-  command: iptables -t nat -A POSTROUTING -s 172.16.0.0/12 ! -d 172.16.0.0/12 -j MASQUERADE
+  command: iptables -t nat -A POSTROUTING -s 173.16.0.0/12 ! -d 172.16.0.0/12 -j MASQUERADE
 
-- name: "Start jenkins container"
+- name: "get docker path"
+  tags: dockerpath
+  command: which docker
+  register: docker_path
+
+- name: "Start jenkins container w/ ssl"
+  when: SSL == True
   become: True
   tags:
     - jenkins_deploy
@@ -38,17 +44,37 @@
     name: jenkins
     state: started
     env:
-     VIRTUAL_HOST: {{ jenkins_domain_name }}
+     VIRTUAL_HOST: "{{ jenkins_domain_name }}"
      VIRTUAL_PROTO: http
      VIRTUAL_PORT: 8080
-{% if SSL == True %}
-     LETSENCRYPT_HOST: {{ jenkins_letsencrypt_domain_name }}
-     LETSENCRYPT_EMAIL: {{ jenkins_letsencrypt_mail }}
+     LETSENCRYPT_HOST: "{{ jenkins_letsencrypt_domain_name }}"
+     LETSENCRYPT_EMAIL: "{{ jenkins_letsencrypt_mail }}"
      LETSENCRYPT_TEST: "{{ jenkins_letsencrypt_testmode }}"
-{% endif %}
 
     networks:
       - proxy_net
     volumes:
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{docker_path.stdout}}:{{docker_path.stdout}}"
+
+- name: "Start jenkins container w/o SSL"
+  become: True
+  when: SSL == False
+  tags:
+    - jenkins_deploy
+    - jenkins_restore
+  docker_container:
+    name: jenkins
+    state: started
+    env:
+     VIRTUAL_HOST: "{{ jenkins_domain_name }}"
+     VIRTUAL_PROTO: http
+     VIRTUAL_PORT: 8080
+    networks:
+      - proxy_net
+    volumes:
+      - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "{{docker_path.stdout}}:{{docker_path.stdout}}"
 
