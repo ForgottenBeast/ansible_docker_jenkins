@@ -36,6 +36,16 @@
   docker_container:
     name: jenkins
     state: started
+    env:
+     VIRTUAL_HOST: {{ jenkins_domain_name }}
+     VIRTUAL_PROTO: http
+     VIRTUAL_PORT: 8080
+{% if SSL == True %}
+     LETSENCRYPT_HOST: {{ jenkins_domain_name }}
+     LETSENCRYPT_EMAIL: {{ jenkins_letsencrypt_mail }}
+     LETSENCRYPT_TEST: "{{ jenkins_letsencrypt_testmode }}"
+{% endif %}
+
     networks:
       - proxy_net
     volumes:
