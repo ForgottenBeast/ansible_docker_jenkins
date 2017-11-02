@@ -88,6 +88,7 @@
 - name: "Reading initial password"
   tags:
     - jenkins_deploy
+  become: True
   command: docker exec jenkins bash -c "cat ~/secrets/initialAdminPassword"
   register: admin_pass
 
