@@ -55,6 +55,7 @@
   docker_container:
     name: jenkins
     image: forgottenbeast/jenkins:latest
+    pull: True
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
@@ -81,6 +82,7 @@
   docker_container:
     name: jenkins
     image: forgottenbeast/jenkins:latest
+    pull: True
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
