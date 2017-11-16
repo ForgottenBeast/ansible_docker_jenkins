@@ -33,13 +33,12 @@
   command: iptables -t nat -A POSTROUTING -s 173.16.0.0/12 ! -d 172.16.0.0/12 -j MASQUERADE
 
 - name: "get docker path"
-  tags:
-    - jenkins_deploy
-    - jenkins_restore
+  tags: always
   command: which docker
   register: docker_path
 
 - name: "Stop jenkins container"
+  become: True
   tags: jenkins_update
   docker_container:
     name: jenkins
@@ -54,7 +53,7 @@
     - jenkins_restore
   docker_container:
     name: jenkins
-    image: forgottenbeast/jenkins:latest
+    image: forgottenbeast/jenkins_docker:x86_64
     pull: True
     state: started
     env:
@@ -81,7 +80,7 @@
     - jenkins_restore
   docker_container:
     name: jenkins
-    image: forgottenbeast/jenkins:latest
+    image: forgottenbeast/jenkins_docker:x86_64
     pull: True
     state: started
     env:

@@ -1,6 +1,5 @@
 - name: "Create docker volumes"
   include: volumes.yml
   become: True
-  tags: wp_setup
   with_items:
     - "{{ JENKINS_VOLUME }}"
