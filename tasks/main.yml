@@ -39,11 +39,18 @@
   command: which docker
   register: docker_path
 
+- name: "Stop jenkins container"
+  tags: jenkins_update
+  docker_container:
+    name: jenkins
+    state: absent
+
 - name: "Start jenkins container w/ ssl"
   when: SSL == True
   become: True
   tags:
     - jenkins_deploy
+    - jenkins_update
     - jenkins_restore
   docker_container:
     name: jenkins
@@ -68,6 +75,7 @@
   become: True
   when: SSL == False
   tags:
+    - jenkins_update
     - jenkins_deploy
     - jenkins_restore
   docker_container:
