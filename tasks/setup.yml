@@ -15,7 +15,7 @@
 
 - name: "Copy clean files to docker volumes"
   shell: |
-    docker exec tmp_jenkins bash -c "sudo cp -a /var/jenkins_home/. /jenkins_files;"
+    docker exec tmp_jenkins bash -c "cp -a /var/jenkins_home/. /jenkins_files;"
 
 - name: "Stop temporary services"
   docker_container:
