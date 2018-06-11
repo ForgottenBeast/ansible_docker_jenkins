@@ -48,7 +48,7 @@
     - jenkins_restore
   docker_container:
     name: jenkins
-    image: jenkins/jenkins_docker:lts
+    image: jenkins/jenkins:lts
     pull: True
     state: started
     env:
