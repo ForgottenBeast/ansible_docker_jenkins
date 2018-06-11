@@ -50,6 +50,7 @@
     name: jenkins
     image: jenkins/jenkins:lts
     pull: True
+    restart_policy: always
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
@@ -75,6 +76,7 @@
     name: jenkins
     image: jenkins/jenkins:lts
     pull: True
+    restart_policy: always
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
