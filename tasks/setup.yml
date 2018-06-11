@@ -1,6 +1,6 @@
 - name: "Update local jenkins clean image"
   docker_image:
-    name: forgottenbeast/jenkins:latest
+    name: jenkins/jenkins:lts
     state: present
     force: True
     pull: True
@@ -8,7 +8,7 @@
 - name: "Start temporary clean jenkins service to copy files"
   docker_container:
     name: tmp_jenkins
-    image: forgottenbeast/jenkins:latest
+    image: jenkins/jenkins:lts
     state: started
     volumes:
       - "{{ JENKINS_VOLUME }}:/jenkins_files"

@@ -32,11 +32,6 @@
    - jenkins_restore
   command: iptables -t nat -A POSTROUTING -s 173.16.0.0/12 ! -d 172.16.0.0/12 -j MASQUERADE
 
-- name: "get docker path"
-  tags: always
-  command: which docker
-  register: docker_path
-
 - name: "Stop jenkins container"
   become: True
   tags: jenkins_update
@@ -53,7 +48,7 @@
     - jenkins_restore
   docker_container:
     name: jenkins
-    image: forgottenbeast/jenkins_docker:x86_64
+    image: jenkins/jenkins_docker:lts
     pull: True
     state: started
     env:
@@ -68,8 +63,6 @@
       - name: proxy_net
     volumes:
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
-      - /var/run/docker.sock:/var/run/docker.sock
-      - "{{docker_path.stdout}}:{{docker_path.stdout}}"
 
 - name: "Start jenkins container w/o SSL"
   become: True
@@ -80,7 +73,7 @@
     - jenkins_restore
   docker_container:
     name: jenkins
-    image: forgottenbeast/jenkins_docker:x86_64
+    image: jenkins/jenkins:lts
     pull: True
     state: started
     env:
@@ -91,8 +84,6 @@
       - name: proxy_net
     volumes:
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
-      - /var/run/docker.sock:/var/run/docker.sock
-      - "{{docker_path.stdout}}:{{docker_path.stdout}}"
 
 - name: "Reading initial password"
   tags:
