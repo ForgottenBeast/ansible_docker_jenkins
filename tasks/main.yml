@@ -63,6 +63,7 @@
     networks:
       - name: proxy_net
     volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
 
 - name: "Start jenkins container w/o SSL"
@@ -85,6 +86,7 @@
     networks:
       - name: proxy_net
     volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
 
 - name: "Reading initial password"
