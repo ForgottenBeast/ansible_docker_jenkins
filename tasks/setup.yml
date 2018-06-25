@@ -1,25 +1,34 @@
-- name: "Update local jenkins clean image"
-  docker_image:
-    name: jenkins/jenkins:lts
-    state: present
-    force: True
-    pull: True
+- block:
+  tags: jenkins_setup
 
-- name: "Start temporary clean jenkins service to copy files"
-  docker_container:
-    name: tmp_jenkins
-    image: jenkins/jenkins:lts
-    state: started
-    volumes:
-      - "{{ JENKINS_VOLUME }}:/jenkins_files"
-
-- name: "Copy clean files to docker volumes"
-  shell: |
-    docker exec tmp_jenkins bash -c "cp -a /var/jenkins_home/. /jenkins_files;"
-
-- name: "Stop temporary services"
-  docker_container:
-    name: "{{ item }}"
-    state: absent
-  with_items:
-    - tmp_jenkins
+  - name: "Update local jenkins clean image"
+    docker_image:
+      name: forgottenbeast/jenkins:latest
+      state: present
+      force: True
+      pull: True
+  
+  - name: "Start temporary clean jenkins service to copy files"
+    docker_container:
+      name: tmp_jenkins
+      image: forgottenbeast/jenkins:latest
+      state: started
+      volumes:
+        - "{{ JENKINS_VOLUME }}:/jenkins_files"
+  
+  - name: add container to inventory
+    add_host:
+      name: tmp_jenkins
+      ansible_connection: docker
+      changed_when: false
+  
+  - name: "Copy clean files to docker volumes"
+    delegate_to: tmp_jenkins
+    command: cp -a /var/jenkins_home/. /jenkins_files;
+  
+  - name: "Stop temporary services"
+    docker_container:
+      name: "{{ item }}"
+      state: absent
+    with_items:
+      - tmp_jenkins

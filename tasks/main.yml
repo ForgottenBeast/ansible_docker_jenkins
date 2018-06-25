@@ -6,33 +6,28 @@
   docker_network:
     name: proxy_net
 
-- include: create_volumes.yml
+- include_tasks: volumes.yml
   become: True
+  with_items:
+    - "{{ JENKINS_VOLUME }}"
   tags:
     - jenkins_volumes_setup
     - jenkins_setup
 
-- include: setup.yml
+- import_tasks: setup.yml
   become: True
   tags: jenkins_setup
 
-- include: backup.yml
+- import_tasks: backup.yml
   become: True
   tags: jenkins_all_backup
 
 
-- include: restore.yml
+- import_tasks: restore.yml
   become: True
   tags: jenkins_all_restore
 
-- name: "Allow docker containers to communicate with the outside"
-  become: True
-  tags:
-   - jenkins_deploy
-   - jenkins_restore
-  command: iptables -t nat -A POSTROUTING -s 173.16.0.0/12 ! -d 172.16.0.0/12 -j MASQUERADE
-
-- name: "Stop jenkins container"
+- name: "Remove jenkins container"
   become: True
   tags: jenkins_update
   docker_container:
@@ -48,9 +43,8 @@
     - jenkins_restore
   docker_container:
     name: jenkins
-    image: jenkins/jenkins:lts
+    image: forgottenbeast/jenkins_docker:x86_64
     pull: True
-    restart_policy: always
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
@@ -63,8 +57,8 @@
     networks:
       - name: proxy_net
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
+      - /var/run/docker.sock:/var/run/docker.sock
 
 - name: "Start jenkins container w/o SSL"
   become: True
@@ -75,9 +69,8 @@
     - jenkins_restore
   docker_container:
     name: jenkins
-    image: jenkins/jenkins:lts
+    image: forgottenbeast/jenkins_docker:x86_64
     pull: True
-    restart_policy: always
     state: started
     env:
      VIRTUAL_HOST: "{{ jenkins_domain_name }}"
@@ -86,8 +79,8 @@
     networks:
       - name: proxy_net
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ JENKINS_VOLUME }}:/var/jenkins_home"
+      - /var/run/docker.sock:/var/run/docker.sock
 
 - name: "Reading initial password"
   tags:
